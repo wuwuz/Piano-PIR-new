@@ -6,6 +6,7 @@ The algorithm details can be found in the paper (https://eprint.iacr.org/2023/45
 **Note**: 
 This repo includes both versions of Piano (the initial version and the updated version). 
 The new version is now described in the main body of the online version of our paper.
+We thank Jesko Dujmovic for helping us improve the scheme.
 
 The initial version is now described as a variant in the online version of our paper (Appendix A).
 The legacy code is in `client/client.go`.
