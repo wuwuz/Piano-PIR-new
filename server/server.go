@@ -46,25 +46,10 @@ func (s *QueryServiceServer) DBAccess(id uint64) util.DBEntry {
 	}
 }
 
-/*
-func (s *QueryServiceServer) HandleBatchedQuery(in *pb.BatchedCuckooBucketQuery) *pb.BatchedCuckooBucketResponse {
-	num := in.GetQueryNum()
-	batchedQuery := in.GetBatchedQuery()
-	batchedResponse := make([]*pb.CuckooBucketResponse, num)
-	for i := uint64(0); i < num; i++ {
-		batchedResponse[i] = s.HandleSingleQuery(batchedQuery[i])
-	}
-
-	return &pb.BatchedCuckooBucketResponse{ResponseNum: num, BatchedResponse: batchedResponse}
-}
-*/
-
 func (s *QueryServiceServer) PlaintextQuery(ctx context.Context, in *pb.PlaintextQueryMsg) (*pb.PlaintextResponse, error) {
 	id := in.GetIndex()
 	ret := s.DBAccess(id)
 	return &pb.PlaintextResponse{Val: ret[:]}, nil
-	//return s.HandleSingleQuery(in), nil
-	//return &pb.QueryResponse{Value: ret}, nil;
 }
 
 func (s *QueryServiceServer) HandleFullSetQuery(key util.PrfKey) util.DBEntry {
@@ -122,11 +107,10 @@ func (s *QueryServiceServer) PunctSetQuery(ctx context.Context, in *pb.PunctSetQ
 	guesses := s.HandlePunctSetQuery(in.GetIndices())
 	since := time.Since(start)
 	return &pb.PunctSetResponse{ReturnSize: SetSize, ServerComputeTime: uint64(since.Nanoseconds()), Guesses: guesses}, nil
-	//return &pb.PunctSetResponse{ReturnSize: SetSize, ServerComputeTime: 0, Guesses: guesses}, nil
 }
 
 /*
- * This is the updated query algorithm. Plain and simple.
+ * This is the new query algorithm. Plain and simple.
  * The client sends the indices of the set.
  * The server returns the parity of the set.
  */
@@ -170,19 +154,6 @@ func (s *QueryServiceServer) FetchFullDB(in *pb.FetchFullDBMsg, stream pb.QueryS
 		up := (i + 1) * ChunkSize
 		var chunk []uint64
 		chunk = s.DB[down*util.DBEntryLength : up*util.DBEntryLength]
-		/*
-			if up > DBSize {
-				//fill up with 0
-				chunk = s.DB[down*util.DBEntryLength : DBSize*util.DBEntryLength]
-				appendSlice := make([]uint64, (up-DBSize)*util.DBEntryLength)
-				for j := uint64(0); j < up-DBSize; j++ {
-					appendSlice[j] = 0
-				}
-				chunk = append(chunk, appendSlice...)
-			} else {
-			}
-		*/
-
 		ret := &pb.DBChunk{ChunkId: i, ChunkSize: ChunkSize, Chunk: chunk}
 		if err := stream.Send(ret); err != nil {
 			log.Printf("Failed to send a chunk: %v", err)
@@ -252,9 +223,6 @@ func main() {
 			copy(DB[i*util.DBEntryLength:(i+1)*util.DBEntryLength], entry[:])
 		}
 	}
-	//for i := DBSize * util.DBEntryLength; i < uint64(len(DB)); i++ {
-	//	DB[i] = 0
-	//}
 
 	maxMsgSize := 12 * 1024 * 1024
 
