@@ -36,9 +36,9 @@ For example, setting `N=134217728`  and `DBEntrySize=8` will generate a 1GB data
 
 ### Developing
 1. The server implementation is in `server/server.go`.
-2. The client implementation is in `client/client.go`.
+2. The client implementation is in `client_new/client_new.go`.
 3. Common utilities are in `util/util.go`, including the PRF and the `DBEntry` definition.
-4. The messages exchanged by servers and client are defined in `query/query.proto`. If you change it, run `bash proto.sh` to generate the corresponding server and client API. You should implement those APIs later.
+4. The messages exchanged by the server and client are defined in `query/query.proto`. If you change it, run `bash proto.sh` to generate the corresponding server and client API. You should implement those APIs later.
 
 ### Contact
 Mingxun Zhou(mingxunz@andrew.cmu.edu)
